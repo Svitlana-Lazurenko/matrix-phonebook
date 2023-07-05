@@ -19,8 +19,11 @@ export const Text = styled.span`
   letter-spacing: 4px;
 `;
 
-export const Button = styled.button`
+export const Wrapper = styled.div`
+  display: flex;
+`;
 
+export const Button = styled.button`
   position: relative;
   overflow: hidden;
   transition: all 0.3s;

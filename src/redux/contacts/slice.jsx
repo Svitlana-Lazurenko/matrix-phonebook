@@ -1,5 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchContacts, addContact, deleteContact } from './operations';
+import { logOut } from 'redux/auth/operations';
+import {
+  fetchContacts,
+  addContact,
+  deleteContact,
+  changeContact,
+} from './operations';
 
 const handlePending = state => {
   state.isLoading = true;
@@ -11,13 +17,28 @@ const handleRejected = (state, action) => {
   state.error = action.payload;
 };
 
+const contactsInitialState = {
+  contactsArr: [],
+  isLoading: false,
+  error: null,
+  isEditMode: false,
+  currentContact: {},
+};
+
 const contactsSlice = createSlice({
   name: 'contacts',
+  initialState: contactsInitialState,
 
-  initialState: {
-    contactsArr: [],
-    isLoading: false,
-    error: null,
+  reducers: {
+    turnOnEditMode(state, action) {
+      state.isEditMode = true;
+      state.currentContact = action.payload;
+    },
+
+    turnOffEditMode(state) {
+      state.isEditMode = false;
+      state.currentContact = {};
+    },
   },
 
   extraReducers: builder => {
@@ -47,8 +68,33 @@ const contactsSlice = createSlice({
         );
         state.contactsArr.splice(index, 1);
       })
-      .addCase(deleteContact.rejected, handleRejected);
+      .addCase(deleteContact.rejected, handleRejected)
+
+      .addCase(changeContact.pending, handlePending)
+      .addCase(changeContact.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        const currentContact = action.payload;
+        const newContacts = state.contactsArr.map(contact =>
+          contact.id === currentContact.id
+            ? {
+                id: contact.id,
+                name: currentContact.name,
+                number: currentContact.number,
+              }
+            : contact
+        );
+        state.contactsArr = newContacts;
+      })
+      .addCase(changeContact.rejected, handleRejected)
+
+      .addCase(logOut.fulfilled, state => {
+        state.contactsArr = [];
+        state.error = null;
+        state.isLoading = false;
+      });
   },
 });
 
+export const { turnOnEditMode, turnOffEditMode } = contactsSlice.actions;
 export const contactsReducer = contactsSlice.reducer;
