@@ -1,9 +1,13 @@
 import { createSelector } from '@reduxjs/toolkit';
-import { selectFilter } from '../filter/selectors';
+import { selectFilter } from 'redux/filter/selectors';
 
 export const selectContacts = state => state.contacts.contactsArr;
 
 export const selectIsLoading = state => state.contacts.isLoading;
+
+export const selectIsEditMode = state => state.contacts.isEditMode;
+
+export const selectCurrentContact = state => state.contacts.currentContact;
 
 export const selectError = state => state.contacts.error;
 
